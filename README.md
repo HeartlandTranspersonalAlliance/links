@@ -12,19 +12,47 @@ python3 -m http.server 8000 --directory site
 
 Then open <http://localhost:8000>.
 
-## Edit the page
+## Edit links
 
-- Links and page copy: `site/index.html`
+- Links: `links.toml` (the source of truth)
+- Page copy outside the button list: `site/index.html`
 - PSKC-specific presentation: `site/css/custom.css`
 - LittleLink upstream styles: `site/css/style.css` and `site/css/brands.css`
 - Profile and social image: `site/images/avatar.png` and `site/images/avatar@2x.png`
-- Future Nostr and Matrix links: find `Future federated/community links` in `site/index.html`, replace the placeholder URLs, and uncomment the buttons
+- Future Nostr and Matrix links: replace their placeholder URLs and set `enabled = true` in `links.toml`
+
+Each `[[links]]` entry supports:
+
+```toml
+[[links]]
+label = "LinkedIn"
+url = "https://www.linkedin.com/company/example/"
+icon = "linkedin"
+button = "linked" # Optional; defaults to the neutral PSKC style
+enabled = true     # Optional; defaults to true
+```
+
+The order of entries is the display order. Enabled URLs must use HTTPS. Run the generator locally after editing:
+
+```sh
+python3 tools/render_links.py --sync-icons
+```
+
+Do not hand-edit the generated block between the markers in `site/index.html`.
+
+### Automatic icon lookup
+
+When an icon such as `linkedin` is requested but `site/images/icons/linkedin.svg` is absent, the generator searches immutable, allowlisted snapshots of the LittleLink v3.11.0 and LittleLink Extended icon catalogs. It validates the result as SVG and vendors it into the repository. Arbitrary download URLs and unsafe paths are not accepted.
+
+If no upstream match exists, the workflow reports every location it searched. Add a reviewed custom SVG using the requested slug—for example, `site/images/icons/my-community.svg`—and rerun the generator.
+
+On pushes to `main`, the Pages workflow tests the generator, updates `site/index.html`, retrieves missing icons, commits generated changes back to `main`, and deploys the rendered site. Pull requests run the same validation without committing or deploying.
 
 Pushes to `main` are deployed by `.github/workflows/pages.yml`. The initial public URL is:
 
 <https://heartlandtranspersonalalliance.github.io/links/>
 
-This is intentionally a static site. It has no admin panel, database, analytics, cookies, or runtime server to maintain. Changes are made in this repository and published by the workflow.
+This is intentionally a static site. It has no admin panel, database, analytics, cookies, or runtime server to maintain. Link changes are made in `links.toml` and published by the workflow.
 
 ## Enable GitHub Pages
 

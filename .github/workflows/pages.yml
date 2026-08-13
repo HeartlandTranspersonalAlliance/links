@@ -3,6 +3,14 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - links.toml
+      - tools/render_links.py
+      - tests/test_render_links.py
+      - site/index.html
+      - site/images/icons/**
+      - .github/workflows/pages.yml
   workflow_dispatch:
 
 permissions:
@@ -13,17 +21,61 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Test generator
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Render links and resolve icons
+        run: python3 tools/render_links.py --sync-icons
+
+      - name: Validate rendered output
+        run: |
+          python3 tools/render_links.py --check
+          git diff --check
+
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pages: write
       id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Test generator
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Render links and resolve icons
+        run: python3 tools/render_links.py --sync-icons
+
+      - name: Commit generated files
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if git diff --quiet -- site/index.html site/images/icons; then
+            echo "Generated links and icons are already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/index.html site/images/icons
+          git commit -m "Update generated links and icons [skip ci]"
+          git push origin HEAD:main
+
+      - name: Validate rendered output
+        run: |
+          python3 tools/render_links.py --check
+          git diff --check
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

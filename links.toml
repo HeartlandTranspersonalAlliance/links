@@ -1,0 +1,92 @@
+# Source of truth for the buttons in site/index.html.
+#
+# To add a link, copy one [[links]] block and choose an icon slug. If the SVG is
+# not already in site/images/icons, the Pages workflow searches the pinned
+# LittleLink and LittleLink Extended catalogs and vendors it automatically.
+# Set enabled = false to keep a prepared link hidden.
+
+version = 1
+
+[[links]]
+label = "Upcoming events"
+url = "https://psychedelickc.org/events/"
+icon = "generic-calendar"
+button = "pskc"
+enabled = true
+
+[[links]]
+label = "Join our Discord"
+url = "https://discord.gg/ds5NYqqBKU"
+icon = "discord"
+button = "discord"
+enabled = true
+
+[[links]]
+label = "Subscribe to our newsletter"
+url = "https://lu.ma/pskc"
+icon = "generic-email"
+button = "pskc"
+enabled = true
+
+[[links]]
+label = "Explore resources"
+url = "https://psychedelickc.org/resources/"
+icon = "generic-website"
+button = "pskc-outline"
+enabled = true
+
+[[links]]
+label = "Visit our website"
+url = "https://psychedelickc.org/"
+icon = "generic-homepage"
+button = "pskc-outline"
+enabled = true
+
+[[links]]
+label = "Instagram"
+url = "https://instagram.com/psychedelicsocietyofkansascity"
+icon = "instagram"
+button = "instagram"
+enabled = true
+
+[[links]]
+label = "Bluesky"
+url = "https://bsky.app/profile/psychedelickc.org"
+icon = "bluesky"
+button = "bluesky"
+enabled = true
+
+[[links]]
+label = "Nostr"
+url = "NOSTR_PROFILE_URL"
+icon = "nostr"
+button = "nostr"
+enabled = false
+
+[[links]]
+label = "Matrix"
+url = "MATRIX_ROOM_URL"
+icon = "matrix"
+button = "matrix"
+enabled = false
+
+[[links]]
+label = "Facebook"
+url = "https://facebook.com/psychedelicsocietyofkansascity"
+icon = "facebook"
+button = "faceb"
+enabled = true
+
+[[links]]
+label = "Support us on Patreon"
+url = "https://www.patreon.com/c/PSKC"
+icon = "patreon"
+button = "patreon"
+enabled = true
+
+[[links]]
+label = "Contact us"
+url = "https://psychedelickc.org/contact/"
+icon = "generic-email"
+button = "pskc-outline"
+enabled = true

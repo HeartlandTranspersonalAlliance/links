@@ -5,7 +5,7 @@
 # LittleLink and LittleLink Extended catalogs and vendors it automatically.
 # Set enabled = false to keep a prepared link hidden.
 
-version = 1
+version = 1.1
 
 [[links]]
 label = "Upcoming events"
@@ -16,7 +16,7 @@ enabled = true
 
 [[links]]
 label = "Join our Discord"
-url = "https://discord.gg/ds5NYqqBKU"
+url = "https://discord.gg/KQXE5X4ezx"
 icon = "discord"
 button = "discord"
 enabled = true
@@ -26,6 +26,13 @@ label = "Subscribe to our newsletter"
 url = "https://lu.ma/pskc"
 icon = "generic-email"
 button = "pskc"
+enabled = true
+
+[[links]]
+label = "Donate to the Cause"
+url = "https://www.zeffy.com/en-US/donation-form/support-the-psychedelic-society-of-kansas-city-championing-education-and-community-engagement-2"
+icon = "zeffy"
+button = "zeffy"
 enabled = true
 
 [[links]]
@@ -78,11 +85,32 @@ button = "faceb"
 enabled = true
 
 [[links]]
+label = "LinkedIn"
+url = "https://www.linkedin.com/showcase/kcps/"
+icon = "linkedin"
+button = "linked"
+enabled = true    
+
+[[links]]
+label = "CashApp"
+url = "https://cash.app/$psychedelickc"
+icon = "cashapp"
+button = "cashapp"
+enabled = true
+
+[[links]]
+label = "Venmo"
+url = "https://www.venmo.com/u/psychedelickc"
+icon = "venmo"
+button = "venmo"
+enabled = true
+
+[[links]]
 label = "Support us on Patreon"
 url = "https://www.patreon.com/c/PSKC"
 icon = "patreon"
 button = "patreon"
-enabled = true
+enabled = false
 
 [[links]]
 label = "Contact us"

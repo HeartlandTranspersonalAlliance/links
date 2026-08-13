@@ -17,7 +17,12 @@ enabled = false
 [[sections]]
 id = "community"
 label = "Community"
-enabled = false
+enabled = true
+
+[[sections]]
+id = "donate"
+label = "Donate!"
+enabled = true
 
 [[links]]
 label = "Upcoming events"
@@ -25,6 +30,7 @@ url = "https://psychedelickc.org/events/"
 icon = "generic-calendar"
 button = "pskc"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Join our Discord"
@@ -32,6 +38,7 @@ url = "https://discord.gg/KQXE5X4ezx"
 icon = "discord"
 button = "discord"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Subscribe to our newsletter"
@@ -39,6 +46,7 @@ url = "https://lu.ma/pskc"
 icon = "generic-email"
 button = "pskc"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Donate to the Cause"
@@ -46,6 +54,7 @@ url = "https://www.zeffy.com/en-US/donation-form/support-the-psychedelic-society
 icon = "zeffy"
 button = "zeffy"
 enabled = true
+section = "donate"
 
 [[links]]
 label = "Explore resources"
@@ -53,6 +62,7 @@ url = "https://psychedelickc.org/resources/"
 icon = "generic-website"
 button = "pskc-outline"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Visit our website"
@@ -60,6 +70,7 @@ url = "https://psychedelickc.org/"
 icon = "generic-homepage"
 button = "pskc-outline"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Instagram"
@@ -67,6 +78,7 @@ url = "https://instagram.com/psychedelicsocietyofkansascity"
 icon = "instagram"
 button = "instagram"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Bluesky"
@@ -74,6 +86,7 @@ url = "https://bsky.app/profile/psychedelickc.org"
 icon = "bluesky"
 button = "bluesky"
 enabled = true
+section = "community"
 
 [[links]]
 label = "Spotify"
@@ -105,6 +118,7 @@ url = "https://facebook.com/psychedelicsocietyofkansascity"
 icon = "facebook"
 button = "faceb"
 enabled = true
+section = "community"
 
 [[links]]
 label = "LinkedIn"
@@ -112,6 +126,7 @@ url = "https://www.linkedin.com/showcase/kcps/"
 icon = "linkedin"
 button = "linked"
 enabled = true    
+section = "community"
 
 [[links]]
 label = "CashApp"
@@ -119,6 +134,7 @@ url = "https://cash.app/$psychedelickc"
 icon = "cash-app-dollar"
 button = "cash-app"
 enabled = true
+section = "donate"
 
 [[links]]
 label = "Venmo"
@@ -126,6 +142,7 @@ url = "https://www.venmo.com/u/psychedelickc"
 icon = "venmo"
 button = "venmo"
 enabled = true
+section = "donate"
 
 [[links]]
 label = "Support us on Patreon"
@@ -140,3 +157,4 @@ url = "https://psychedelickc.org/contact/"
 icon = "generic-email"
 button = "pskc-outline"
 enabled = true
+section = "community"

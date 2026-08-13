@@ -155,13 +155,12 @@ button {
 /* Zeffy is not part of LittleLink's upstream button catalog. */
 .button.button-zeffy {
   --button-text: #ffffff;
-  --button-background: #5b35d5;
-  --button-border: 1px solid #a992ff;
+  --button-background: #00006d;
+  --button-border: 1px solid #05d4b7;
 }
 
 .button-pskc .icon,
-.button-pskc-outline .icon,
-.button-zeffy .icon {
+.button-pskc-outline .icon {
   filter: brightness(0) invert(1);
 }
 

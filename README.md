@@ -32,7 +32,26 @@ button = "linked" # Optional; defaults to the neutral PSKC style
 enabled = true     # Optional; defaults to true
 ```
 
-The order of entries is the display order. Enabled URLs must use HTTPS. Run the generator locally after editing:
+Links can be organized under accessible section headings:
+
+```toml
+[[sections]]
+id = "community"
+label = "Community"
+enabled = true
+
+[[links]]
+label = "Matrix"
+url = "https://matrix.to/#/#example:matrix.org"
+icon = "matrix"
+button = "matrix"
+enabled = true
+section = "community"
+```
+
+Ungrouped links render first. Sections render afterward in `[[sections]]` order, and links within a section retain their `[[links]]` order. A disabled section and all its links are emitted inside an inert HTML `<template>` as a ready-to-enable example. The current Media and Community examples demonstrate this with Spotify, Nostr, and Matrix.
+
+Enabled URLs must use HTTPS. Run the generator locally after editing:
 
 ```sh
 python3 tools/render_links.py --sync-icons

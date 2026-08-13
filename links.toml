@@ -7,6 +7,18 @@
 
 version = 1
 
+# Disabled section examples. Set enabled = true to show the heading and then
+# enable any links in that section that are ready to publish.
+[[sections]]
+id = "media"
+label = "Media & Podcasts"
+enabled = false
+
+[[sections]]
+id = "community"
+label = "Community"
+enabled = false
+
 [[links]]
 label = "Upcoming events"
 url = "https://psychedelickc.org/events/"
@@ -69,6 +81,7 @@ url = "SPOTIFY_PROFILE_URL"
 icon = "spotify"
 button = "spotify"
 enabled = false
+section = "media"
 
 [[links]]
 label = "Nostr"
@@ -76,6 +89,7 @@ url = "NOSTR_PROFILE_URL"
 icon = "nostr"
 button = "nostr"
 enabled = false
+section = "community"
 
 [[links]]
 label = "Matrix"
@@ -83,6 +97,7 @@ url = "MATRIX_ROOM_URL"
 icon = "matrix"
 button = "matrix"
 enabled = false
+section = "community"
 
 [[links]]
 label = "Facebook"

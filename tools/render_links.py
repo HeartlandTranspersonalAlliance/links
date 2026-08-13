@@ -59,16 +59,32 @@ class Link:
     icon: str
     button: str
     enabled: bool
+    section: str | None = None
 
 
-def _required_string(raw: dict[str, object], key: str, position: int) -> str:
+@dataclass(frozen=True)
+class Section:
+    id: str
+    label: str
+    enabled: bool
+
+
+@dataclass(frozen=True)
+class Config:
+    links: tuple[Link, ...]
+    sections: tuple[Section, ...]
+
+
+def _required_string(
+    raw: dict[str, object], key: str, position: int, kind: str = "links"
+) -> str:
     value = raw.get(key)
     if not isinstance(value, str) or not value.strip():
-        raise ConfigError(f"links[{position}].{key} must be a non-empty string")
+        raise ConfigError(f"{kind}[{position}].{key} must be a non-empty string")
     return value.strip()
 
 
-def load_links(path: Path) -> list[Link]:
+def load_config(path: Path) -> Config:
     try:
         with path.open("rb") as stream:
             document = tomllib.load(stream)
@@ -77,6 +93,37 @@ def load_links(path: Path) -> list[Link]:
 
     if document.get("version") != 1:
         raise ConfigError("links.toml must contain version = 1")
+
+    unknown_document_keys = set(document) - {"version", "links", "sections"}
+    if unknown_document_keys:
+        names = ", ".join(sorted(unknown_document_keys))
+        raise ConfigError(f"links.toml has unknown top-level field(s): {names}")
+
+    raw_sections = document.get("sections", [])
+    if not isinstance(raw_sections, list):
+        raise ConfigError("links.toml sections must use [[sections]] tables")
+
+    sections: list[Section] = []
+    section_ids: set[str] = set()
+    for position, raw in enumerate(raw_sections, start=1):
+        if not isinstance(raw, dict):
+            raise ConfigError(f"sections[{position}] must be a TOML table")
+        unknown = set(raw) - {"id", "label", "enabled"}
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            raise ConfigError(f"sections[{position}] has unknown field(s): {names}")
+
+        section_id = _required_string(raw, "id", position, "sections")
+        label = _required_string(raw, "label", position, "sections")
+        enabled = raw.get("enabled", True)
+        if not SAFE_SLUG.fullmatch(section_id):
+            raise ConfigError(f"sections[{position}].id must be a lowercase slug")
+        if section_id in section_ids:
+            raise ConfigError(f"sections[{position}].id duplicates '{section_id}'")
+        if not isinstance(enabled, bool):
+            raise ConfigError(f"sections[{position}].enabled must be true or false")
+        section_ids.add(section_id)
+        sections.append(Section(section_id, label, enabled))
 
     raw_links = document.get("links")
     if not isinstance(raw_links, list) or not raw_links:
@@ -88,7 +135,7 @@ def load_links(path: Path) -> list[Link]:
         if not isinstance(raw, dict):
             raise ConfigError(f"links[{position}] must be a TOML table")
 
-        unknown = set(raw) - {"label", "url", "icon", "button", "enabled"}
+        unknown = set(raw) - {"label", "url", "icon", "button", "enabled", "section"}
         if unknown:
             names = ", ".join(sorted(unknown))
             raise ConfigError(f"links[{position}] has unknown field(s): {names}")
@@ -98,6 +145,7 @@ def load_links(path: Path) -> list[Link]:
         icon = _required_string(raw, "icon", position)
         button = raw.get("button", "pskc-outline")
         enabled = raw.get("enabled", True)
+        section = raw.get("section")
 
         if not isinstance(button, str) or not SAFE_BUTTON.fullmatch(button):
             raise ConfigError(f"links[{position}].button must be a safe CSS slug")
@@ -105,6 +153,13 @@ def load_links(path: Path) -> list[Link]:
             raise ConfigError(f"links[{position}].icon must be a lowercase icon slug")
         if not isinstance(enabled, bool):
             raise ConfigError(f"links[{position}].enabled must be true or false")
+        if section is not None:
+            if not isinstance(section, str) or not SAFE_SLUG.fullmatch(section):
+                raise ConfigError(f"links[{position}].section must be a lowercase slug")
+            if section not in section_ids:
+                raise ConfigError(
+                    f"links[{position}].section references unknown section '{section}'"
+                )
 
         if enabled:
             parsed = urlsplit(url)
@@ -116,42 +171,102 @@ def load_links(path: Path) -> list[Link]:
                 raise ConfigError(f"links[{position}].url duplicates an enabled link")
             active_urls.add(url)
 
-        links.append(Link(label, url, icon, button, enabled))
+        links.append(Link(label, url, icon, button, enabled, section))
 
-    return links
+    empty_sections = [
+        section.id
+        for section in sections
+        if not any(link.section == section.id for link in links)
+    ]
+    if empty_sections:
+        raise ConfigError("section(s) contain no links: " + ", ".join(empty_sections))
+
+    return Config(tuple(links), tuple(sections))
 
 
-def render_anchor(link: Link) -> list[str]:
+def render_anchor(link: Link, indent: str = "            ") -> list[str]:
     label = html.escape(link.label)
     url = html.escape(link.url, quote=True)
     icon = html.escape(link.icon, quote=True)
     button = html.escape(link.button, quote=True)
     return [
-        f'            <a class="button button-{button}" href="{url}" target="_blank" rel="noopener noreferrer">',
-        f'              <img class="icon" aria-hidden="true" src="images/icons/{icon}.svg" alt="">',
-        f"              {label}",
-        "            </a>",
+        f'{indent}<a class="button button-{button}" href="{url}" target="_blank" rel="noopener noreferrer">',
+        f'{indent}  <img class="icon" aria-hidden="true" src="images/icons/{icon}.svg" alt="">',
+        f"{indent}  {label}",
+        f"{indent}</a>",
     ]
 
 
-def render_block(links: list[Link]) -> str:
-    output = [START_MARKER]
+def append_link(output: list[str], link: Link, indent: str = "            ") -> None:
+    output.append("")
+    anchor = render_anchor(link, indent)
+    if link.enabled:
+        output.extend(anchor)
+    else:
+        output.append(
+            f"{indent}<!-- Disabled link: add its URL and set enabled = true in links.toml."
+        )
+        output.extend(anchor)
+        output.append(f"{indent}-->")
+
+
+def append_section(output: list[str], section: Section, links: list[Link]) -> None:
+    section_id = html.escape(section.id, quote=True)
+    label = html.escape(section.label)
+    output.append("")
+    if not section.enabled:
+        output.append(
+            f'            <template data-disabled-section="{section_id}">'
+        )
+        output.append(
+            f'              <section class="link-section" aria-labelledby="section-{section_id}">'
+        )
+        output.append(
+            f'                <h2 id="section-{section_id}" class="link-section__title">{label}</h2>'
+        )
+        for link in links:
+            output.append("")
+            output.extend(render_anchor(link, "                "))
+        output.append("              </section>")
+        output.append("            </template>")
+        return
+
+    output.append(
+        f'            <section class="link-section" aria-labelledby="section-{section_id}">'
+    )
+    output.append(
+        f'              <h2 id="section-{section_id}" class="link-section__title">{label}</h2>'
+    )
     for link in links:
-        output.append("")
-        anchor = render_anchor(link)
-        if link.enabled:
-            output.extend(anchor)
-        else:
-            output.append(
-                "            <!-- Disabled link: add its URL and set enabled = true in links.toml."
-            )
-            output.extend(anchor)
-            output.append("            -->")
+        append_link(output, link, "              ")
+    output.append("            </section>")
+
+
+def render_block(config: Config) -> str:
+    output = [START_MARKER]
+    for link in config.links:
+        if link.section is None:
+            append_link(output, link)
+
+    for section in config.sections:
+        section_links = [link for link in config.links if link.section == section.id]
+        append_section(output, section, section_links)
+
     output.extend(["", END_MARKER])
     return "\n".join(output)
 
 
-def update_index(path: Path, links: list[Link], check: bool) -> bool:
+def load_links(path: Path) -> list[Link]:
+    """Compatibility helper returning only the configured links."""
+    return list(load_config(path).links)
+
+
+def render_links(links: list[Link]) -> str:
+    """Compatibility helper for callers that do not use sections."""
+    return render_block(Config(tuple(links), ()))
+
+
+def update_index(path: Path, config: Config, check: bool) -> bool:
     try:
         current = path.read_text(encoding="utf-8")
     except OSError as exc:
@@ -165,7 +280,7 @@ def update_index(path: Path, links: list[Link], check: bool) -> bool:
         raise ConfigError(f"{path} contains duplicate generated-link markers")
 
     end += len(END_MARKER)
-    expected = current[:start] + render_block(links) + current[end:]
+    expected = current[:start] + render_block(config) + current[end:]
     changed = expected != current
     if changed and check:
         raise ConfigError(f"{path} is stale; run tools/render_links.py --sync-icons")
@@ -284,9 +399,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     try:
-        links = load_links(args.config)
-        messages = sync_icons(links, args.icons_dir, args.sync_icons and not args.check)
-        changed = update_index(args.index, links, args.check)
+        config = load_config(args.config)
+        messages = sync_icons(list(config.links), args.icons_dir, args.sync_icons and not args.check)
+        changed = update_index(args.index, config, args.check)
     except ConfigError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

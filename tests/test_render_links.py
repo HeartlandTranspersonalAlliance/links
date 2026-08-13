@@ -41,13 +41,70 @@ class RenderLinksTests(unittest.TestCase):
             )
 
             links = render_links.load_links(config)
-            rendered = render_links.render_block(links)
+            rendered = render_links.render_links(links)
 
             self.assertIn("LinkedIn &amp; friends", rendered)
             self.assertIn("button-pskc-outline", rendered)
             self.assertIn("images/icons/linkedin.svg", rendered)
             self.assertIn("Disabled link", rendered)
             self.assertIn("MATRIX_ROOM_URL", rendered)
+
+    def test_enabled_and_disabled_sections_render_safely(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            config_path = self.write_config(
+                Path(temporary),
+                """
+                version = 1
+
+                [[sections]]
+                id = "community"
+                label = "Community & conversation"
+                enabled = true
+
+                [[sections]]
+                id = "media"
+                label = "Media"
+                enabled = false
+
+                [[links]]
+                label = "Matrix"
+                url = "https://matrix.to/#/#example:matrix.org"
+                icon = "matrix"
+                section = "community"
+
+                [[links]]
+                label = "Spotify"
+                url = "SPOTIFY_PROFILE_URL"
+                icon = "spotify"
+                enabled = false
+                section = "media"
+                """,
+            )
+
+            config = render_links.load_config(config_path)
+            rendered = render_links.render_block(config)
+
+            self.assertIn('class="link-section"', rendered)
+            self.assertIn("Community &amp; conversation", rendered)
+            self.assertIn('data-disabled-section="media"', rendered)
+            self.assertIn("SPOTIFY_PROFILE_URL", rendered)
+
+    def test_link_cannot_reference_unknown_section(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            config = self.write_config(
+                Path(temporary),
+                """
+                version = 1
+                [[links]]
+                label = "Example"
+                url = "https://example.com/"
+                icon = "generic-website"
+                section = "missing"
+                """,
+            )
+
+            with self.assertRaisesRegex(render_links.ConfigError, "unknown section"):
+                render_links.load_config(config)
 
     def test_enabled_link_requires_https(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -97,8 +154,9 @@ class RenderLinksTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            self.assertTrue(render_links.update_index(index, [link], check=False))
-            self.assertFalse(render_links.update_index(index, [link], check=True))
+            config = render_links.Config((link,), ())
+            self.assertTrue(render_links.update_index(index, config, check=False))
+            self.assertFalse(render_links.update_index(index, config, check=True))
 
 
 if __name__ == "__main__":

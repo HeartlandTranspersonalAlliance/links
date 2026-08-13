@@ -127,6 +127,12 @@ button {
   --button-border: 1px solid rgba(169, 221, 224, 0.45);
 }
 
+/* Nostr button from LittleLink Extended. */
+.button.button-nostr {
+  --button-text: #ffffff;
+  --button-background: #a915ff;
+}
+
 .button-pskc .icon,
 .button-pskc-outline .icon {
   filter: brightness(0) invert(1);

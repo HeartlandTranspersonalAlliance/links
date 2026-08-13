@@ -18,6 +18,7 @@ Then open <http://localhost:8000>.
 - PSKC-specific presentation: `site/css/custom.css`
 - LittleLink upstream styles: `site/css/style.css` and `site/css/brands.css`
 - Profile and social image: `site/images/avatar.png` and `site/images/avatar@2x.png`
+- Future Nostr and Matrix links: find `Future federated/community links` in `site/index.html`, replace the placeholder URLs, and uncomment the buttons
 
 Pushes to `main` are deployed by `.github/workflows/pages.yml`. The initial public URL is:
 

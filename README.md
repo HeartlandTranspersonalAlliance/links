@@ -46,6 +46,8 @@ When an icon such as `linkedin` is requested but `site/images/icons/linkedin.svg
 
 If no upstream match exists, the workflow reports every location it searched. Add a reviewed custom SVG using the requested slug—for example, `site/images/icons/my-community.svg`—and rerun the generator.
 
+Custom icons currently include `zeffy`, `youtube`, and `generic-conference`. The YouTube icon also has LittleLink's `yt` button style available; custom links default to the neutral PSKC button style when `button` is omitted.
+
 On pushes to `main`, the Pages workflow tests the generator, updates `site/index.html`, retrieves missing icons, commits generated changes back to `main`, and deploys the rendered site. Pull requests run the same validation without committing or deploying.
 
 Pushes to `main` are deployed by `.github/workflows/pages.yml`. The initial public URL is:

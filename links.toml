@@ -94,8 +94,8 @@ enabled = true
 [[links]]
 label = "CashApp"
 url = "https://cash.app/$psychedelickc"
-icon = "cashapp"
-button = "cashapp"
+icon = "cash-app-dollar"
+button = "cash-app"
 enabled = true
 
 [[links]]

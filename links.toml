@@ -64,6 +64,13 @@ button = "bluesky"
 enabled = true
 
 [[links]]
+label = "Spotify"
+url = "SPOTIFY_PROFILE_URL"
+icon = "spotify"
+button = "spotify"
+enabled = false
+
+[[links]]
 label = "Nostr"
 url = "NOSTR_PROFILE_URL"
 icon = "nostr"

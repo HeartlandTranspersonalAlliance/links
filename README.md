@@ -65,13 +65,13 @@ When an icon such as `linkedin` is requested but `site/images/icons/linkedin.svg
 
 If no upstream match exists, the workflow reports every location it searched. Add a reviewed custom SVG using the requested slug—for example, `site/images/icons/my-community.svg`—and rerun the generator.
 
-Custom icons currently include `zeffy`, `youtube`, `generic-conference`, and `generic-podcast`. The YouTube icon also has LittleLink's `yt` button style available; custom links default to the neutral PSKC button style when `button` is omitted. A disabled Spotify example in `links.toml` can be enabled after replacing its placeholder URL.
+Custom icons currently include `zeffy`, `youtube`, `generic-conference`, `generic-membership`, and `generic-podcast`. The YouTube icon also has LittleLink's `yt` button style available; custom links default to the neutral PSKC button style when `button` is omitted. A disabled Spotify example in `links.toml` can be enabled after replacing its placeholder URL.
 
 On pushes to `main`, the Pages workflow tests the generator, updates `site/index.html`, retrieves missing icons, commits generated changes back to `main`, and deploys the rendered site. Pull requests run the same validation without committing or deploying.
 
 Pushes to `main` are deployed by `.github/workflows/pages.yml`. The initial public URL is:
 
-<https://heartlandtranspersonalalliance.github.io/links/>
+<https://heartlandtranspersonalalliance.github.io/links-pskc/>
 
 This is intentionally a static site. It has no admin panel, database, analytics, cookies, or runtime server to maintain. Link changes are made in `links.toml` and published by the workflow.
 
